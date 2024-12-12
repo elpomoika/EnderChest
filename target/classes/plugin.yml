@@ -1,0 +1,4 @@
+name: EnderChest
+version: '1.0'
+main: me.elpomoika.enderChest.EnderChest
+api-version: '1.18'
