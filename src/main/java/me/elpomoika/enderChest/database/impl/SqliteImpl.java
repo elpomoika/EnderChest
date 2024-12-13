@@ -1,18 +1,22 @@
-package me.elpomoika.enderChest.database;
+package me.elpomoika.enderChest.database.impl;
 
+import me.elpomoika.enderChest.database.EChestDataI;
 import me.elpomoika.enderChest.gui.ChestGui;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
 import java.sql.*;
 
-public class EChestData {
-
-    private final Connection connection;
+public class SqliteImpl implements EChestDataI {
+    private Connection connection;
     private final ChestGui chestGui;
 
-    public EChestData(String path, ChestGui chestGui) throws SQLException {
+    public SqliteImpl(ChestGui chestGui) {
         this.chestGui = chestGui;
+    }
+
+    @Override
+    public void connectDB(String path) throws SQLException {
         String url = "jdbc:sqlite:" + path;
         connection = DriverManager.getConnection(url);
 
@@ -23,23 +27,18 @@ public class EChestData {
         }
     }
 
-    public EChestData(String host, int port, String database, String username, String password, ChestGui chestGui1) throws SQLException {
-        this.chestGui = chestGui1;
-        connection =  DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, username, password);
-
-        try (Statement statement = connection.createStatement()) {
-            statement.execute("CREATE TABLE IF NOT EXISTS players (" +
-                    "username TEXT NOT NULL, " +
-                    "inventory TEXT)");
+    @Override
+    public void closeConnection() {
+        try {
+            if (connection != null && !connection.isClosed()) {
+                connection.close();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    public void closeConnection() throws SQLException {
-        if (connection != null && !connection.isClosed()) {
-            connection.close();
-        }
-    }
-
+    @Override
     public void addPlayer(Player player, Inventory inventory) {
         try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO players (username, inventory) VALUES (?, ?)")){
             preparedStatement.setString(1, player.getDisplayName());
@@ -50,6 +49,7 @@ public class EChestData {
         }
     }
 
+    @Override
     public boolean playerExists(Player player) {
         try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT username FROM players WHERE username = ?")){
             preparedStatement.setString(1, player.getDisplayName());
@@ -61,6 +61,7 @@ public class EChestData {
         }
     }
 
+    @Override
     public void updatePlayer(Player player, Inventory inventory) {
         try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE players SET inventory = ? WHERE username = ?")){
             preparedStatement.setString(1, chestGui.serializeInventory(inventory));
@@ -71,6 +72,7 @@ public class EChestData {
         }
     }
 
+    @Override
     public String getSerializedInventory(Player player) {
         // TODO пойти нахуй
         try (PreparedStatement statement = connection.prepareStatement("SELECT inventory FROM players WHERE username = ?")) {
