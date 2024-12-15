@@ -5,7 +5,6 @@ import me.elpomoika.enderChest.database.DatabaseFactory;
 import me.elpomoika.enderChest.listeners.OpenEChestListener;
 import me.elpomoika.enderChest.listeners.onCloseEChest;
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -18,23 +17,14 @@ public final class EnderChest extends JavaPlugin {
     @Override
     public void onEnable() {
         plugin = this;
-        if (!getDataFolder().exists()) getDataFolder().mkdir();
-
-
-        this.getConfig().options().copyDefaults(true);
-        saveConfig();
-
-        File configFile = new File(getDataFolder(), "config.yml");
-        if (!configFile.exists()) saveResource("config.yml", true);
+        createConfigFile();
 
         try {
-            System.out.println(this.getConfig().getString("database"));
             data = DatabaseFactory.getDatabase(this.getConfig().getString("database"));
             data.createTable();
         } catch (SQLException e) {
             Bukkit.getPluginManager().disablePlugin(this);
-            System.out.println("Failed to coonect to database (main class)");
-            throw new RuntimeException(e);
+            throw new RuntimeException("Failed to connect to database!!!", e);
         }
 
         Bukkit.getPluginManager().registerEvents(new onCloseEChest(), this);
@@ -44,7 +34,13 @@ public final class EnderChest extends JavaPlugin {
     @Override
     public void onDisable() {
         data.closeConnection();
-        getLogger().info("Database successfully close");
+    }
+
+    public void createConfigFile() {
+        if (!getDataFolder().exists()) getDataFolder().mkdir();
+        saveDefaultConfig();
+        File configFile = new File(getDataFolder(), "config.yml");
+        if (!configFile.exists()) saveResource("config.yml", false);
     }
 
     public static EnderChest getPlugin() {

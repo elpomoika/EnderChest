@@ -9,12 +9,12 @@ import org.jetbrains.annotations.NotNull;
 import java.sql.*;
 
 public class MysqlImpl implements Database {
-    private Connection connection;
     private final ChestGui chestGui;
+    private Connection connection;
     @NotNull
     private String host;
     @NotNull
-    private int port;
+    private String port;
     @NotNull
     private String database;
     @NotNull
@@ -22,25 +22,25 @@ public class MysqlImpl implements Database {
     @NotNull
     private String password;
 
-    {
-        String url = "jdbc:mysql://" + host + ":" + port + "/" + database;
-        try {
-            // NullPointer потому что не может подключиться к бд
-            System.out.println("We use mysql");
-            this.connection = DriverManager.getConnection(url, username, password);
-        } catch (SQLException e) {
-            System.out.println("Cannot connect to database");
-            throw new RuntimeException(e);
-        }
-    }
-
-    public MysqlImpl(ChestGui chestGui, String host, int port, String database, String username, String password) {
+    public MysqlImpl(ChestGui chestGui, String host, String port, String database, String username, String password) {
         this.chestGui = chestGui;
         this.host = host;
         this.port = port;
         this.database = database;
         this.username = username;
         this.password = password;
+
+        setConnection();
+    }
+
+    private void setConnection(){
+        String url = "jdbc:mysql://" + host + ":" + port + "/" + database;
+
+        try {
+            this.connection = DriverManager.getConnection(url, username, password);
+        } catch (SQLException e) {
+            throw new RuntimeException("Cannot connect to database", e);
+        }
     }
 
     @Override

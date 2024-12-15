@@ -14,7 +14,13 @@ public class SqliteImpl implements Database {
     private String url = "jdbc:sqlite:" + path;
     private Connection connection;
 
-    {
+    public SqliteImpl(ChestGui chestGui) {
+        this.chestGui = chestGui;
+
+        setConnection();
+    }
+
+    public void setConnection() {
         try {
             System.out.println("We use sqlite");
             connection = DriverManager.getConnection(url);
@@ -23,9 +29,6 @@ public class SqliteImpl implements Database {
         }
     }
 
-    public SqliteImpl(ChestGui chestGui) {
-        this.chestGui = chestGui;
-    }
 
     @Override
     public void createTable() throws SQLException {
@@ -85,7 +88,6 @@ public class SqliteImpl implements Database {
 
     @Override
     public String getSerializedInventory(Player player) {
-        // TODO пойти нахуй
         try (PreparedStatement statement = connection.prepareStatement("SELECT inventory FROM players WHERE username = ?")) {
             statement.setString(1, player.getDisplayName());
             ResultSet resultSet = statement.executeQuery();

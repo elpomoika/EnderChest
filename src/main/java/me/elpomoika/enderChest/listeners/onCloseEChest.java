@@ -14,16 +14,14 @@ public class onCloseEChest implements Listener {
     @EventHandler
     public void onClose(InventoryCloseEvent event) {
         data = DatabaseFactory.getDatabase(EnderChest.getPlugin().getConfig().getString("database"));
-        System.out.println(EnderChest.getPlugin().getConfig().getString("database"));
+
         Player player = (Player) event.getPlayer();
         if (event.getView().getTitle().equalsIgnoreCase("EChest")) {
             if (!data.playerExists(player)) {
                 System.out.println(data.playerExists(player));
                 data.addPlayer(player, event.getInventory());
-                System.out.println("added");
             } else {
                 data.updatePlayer(player, event.getInventory());
-                System.out.println("All nice youre sexy wow bomba");
             }
         }
     }

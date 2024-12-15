@@ -9,14 +9,15 @@ import org.bukkit.configuration.file.FileConfiguration;
 public class DatabaseFactory {
     private static FileConfiguration config = EnderChest.getPlugin().getConfig();
     public static Database getDatabase(String dbType) {
-        // Todo доделать
         switch (dbType.toLowerCase()) {
             case "sqlite":
                 return new SqliteImpl(new ChestGui());
             case "mysql":
-                return new MysqlImpl(new ChestGui(), config.getString("mysql.host"), config.getInt("mysql.port"),
+                return new MysqlImpl(new ChestGui(), config.getString("mysql.host"),
+                        config.getString("mysql.port"),
                         config.getString("mysql.database"),
-                        config.getString("mysql.username"), config.getString("mysql.password"));
+                        config.getString("mysql.username"),
+                        config.getString("mysql.password"));
             default:
                 throw new IllegalArgumentException("Неизвестное название базы данных");
         }

@@ -17,19 +17,17 @@ public class OpenEChestListener implements Listener {
 
     @EventHandler
     public void onClick(PlayerInteractEvent event) {
-        System.out.println(EnderChest.getPlugin().getConfig().getString("database"));
         data = DatabaseFactory.getDatabase(EnderChest.getPlugin().getConfig().getString("database"));
         Player p = event.getPlayer();
 
-        if (!event.getAction().equals(Action.RIGHT_CLICK_BLOCK))
-            return;
-        if (!event.getClickedBlock().getType().equals(Material.ENDER_CHEST))
-            return;
+        if (!event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) return;
+        if (!event.getClickedBlock().getType().equals(Material.ENDER_CHEST)) return;
+
         event.setCancelled(true);
         if (!data.playerExists(p)) {
-            System.out.println(data.playerExists(p));
             p.openInventory(chestGui.openGui(p));
         }
+
         p.openInventory(chestGui.deserializeInventory(data.getSerializedInventory(p), p));
     }
 }
