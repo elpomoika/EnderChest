@@ -5,8 +5,10 @@ import me.elpomoika.enderChest.database.DatabaseFactory;
 import me.elpomoika.enderChest.listeners.OpenEChestListener;
 import me.elpomoika.enderChest.listeners.onCloseEChest;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
 import java.sql.SQLException;
 
 public final class EnderChest extends JavaPlugin {
@@ -18,10 +20,15 @@ public final class EnderChest extends JavaPlugin {
         plugin = this;
         if (!getDataFolder().exists()) getDataFolder().mkdir();
 
+
         this.getConfig().options().copyDefaults(true);
         saveConfig();
 
+        File configFile = new File(getDataFolder(), "config.yml");
+        if (!configFile.exists()) saveResource("config.yml", true);
+
         try {
+            System.out.println(this.getConfig().getString("database"));
             data = DatabaseFactory.getDatabase(this.getConfig().getString("database"));
             data.createTable();
         } catch (SQLException e) {

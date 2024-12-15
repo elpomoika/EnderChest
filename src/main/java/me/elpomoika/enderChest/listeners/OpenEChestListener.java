@@ -17,6 +17,7 @@ public class OpenEChestListener implements Listener {
 
     @EventHandler
     public void onClick(PlayerInteractEvent event) {
+        System.out.println(EnderChest.getPlugin().getConfig().getString("database"));
         data = DatabaseFactory.getDatabase(EnderChest.getPlugin().getConfig().getString("database"));
         Player p = event.getPlayer();
 

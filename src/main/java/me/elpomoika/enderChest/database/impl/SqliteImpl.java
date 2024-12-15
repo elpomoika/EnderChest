@@ -16,6 +16,7 @@ public class SqliteImpl implements Database {
 
     {
         try {
+            System.out.println("We use sqlite");
             connection = DriverManager.getConnection(url);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -28,7 +29,7 @@ public class SqliteImpl implements Database {
 
     @Override
     public void createTable() throws SQLException {
-        System.out.println("" + connection != null);
+        System.out.println(connection != null);
 
         try (Statement statement = connection.createStatement()) {
             statement.execute("CREATE TABLE IF NOT EXISTS players (" +

@@ -1,1 +1,13 @@
-database: "sqlite"
+database: "mysql"
+
+################################################
+#                                              #
+#              MySQL connection                #
+#   .!.                                 .!.    #
+################################################
+mysql:
+  host: "db4free.net"
+  port: 3306
+  database: "elpomoika"
+  username: "musqtest"
+  password: "12345678"
