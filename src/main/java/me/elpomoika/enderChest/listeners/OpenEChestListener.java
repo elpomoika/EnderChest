@@ -1,6 +1,8 @@
 package me.elpomoika.enderChest.listeners;
 
-import me.elpomoika.enderChest.database.EChestData;
+import me.elpomoika.enderChest.EnderChest;
+import me.elpomoika.enderChest.database.Database;
+import me.elpomoika.enderChest.database.DatabaseFactory;
 import me.elpomoika.enderChest.gui.ChestGui;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -11,14 +13,11 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 public class OpenEChestListener implements Listener {
     private ChestGui chestGui = new ChestGui();
-    private final EChestData data;
-
-    public OpenEChestListener(EChestData data) {
-        this.data = data;
-    }
+    private Database data;
 
     @EventHandler
     public void onClick(PlayerInteractEvent event) {
+        data = DatabaseFactory.getDatabase(EnderChest.getPlugin().getConfig().getString("database"));
         Player p = event.getPlayer();
 
         if (!event.getAction().equals(Action.RIGHT_CLICK_BLOCK))

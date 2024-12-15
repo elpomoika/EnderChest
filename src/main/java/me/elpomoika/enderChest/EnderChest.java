@@ -1,7 +1,7 @@
 package me.elpomoika.enderChest;
 
-import me.elpomoika.enderChest.database.EChestData;
-import me.elpomoika.enderChest.gui.ChestGui;
+import me.elpomoika.enderChest.database.Database;
+import me.elpomoika.enderChest.database.DatabaseFactory;
 import me.elpomoika.enderChest.listeners.OpenEChestListener;
 import me.elpomoika.enderChest.listeners.onCloseEChest;
 import org.bukkit.Bukkit;
@@ -10,30 +10,37 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.sql.SQLException;
 
 public final class EnderChest extends JavaPlugin {
-    private EChestData data;
-    private String path = getDataFolder().getAbsolutePath() + "/echest.db";
+    private Database data;
+    private static EnderChest plugin;
 
     @Override
     public void onEnable() {
-        // Plugin startup logic
+        plugin = this;
+        if (!getDataFolder().exists()) getDataFolder().mkdir();
+
+        this.getConfig().options().copyDefaults(true);
+        saveConfig();
+
         try {
-            if (!getDataFolder().exists()) {
-                getDataFolder().mkdir();
-            }
-            data = new EChestData(path, new ChestGui());
-            Bukkit.getPluginManager().registerEvents(new onCloseEChest(new EChestData(path, new ChestGui())), this);
-            Bukkit.getPluginManager().registerEvents(new OpenEChestListener(new EChestData(path, new ChestGui())), this);
+            data = DatabaseFactory.getDatabase(this.getConfig().getString("database"));
+            data.createTable();
         } catch (SQLException e) {
+            Bukkit.getPluginManager().disablePlugin(this);
+            System.out.println("Failed to coonect to database (main class)");
             throw new RuntimeException(e);
         }
+
+        Bukkit.getPluginManager().registerEvents(new onCloseEChest(), this);
+        Bukkit.getPluginManager().registerEvents(new OpenEChestListener(), this);
     }
 
     @Override
     public void onDisable() {
-        try {
-            data.closeConnection();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        data.closeConnection();
+        getLogger().info("Database successfully close");
+    }
+
+    public static EnderChest getPlugin() {
+        return plugin;
     }
 }

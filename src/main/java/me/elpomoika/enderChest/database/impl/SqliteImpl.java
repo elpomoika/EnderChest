@@ -1,24 +1,34 @@
 package me.elpomoika.enderChest.database.impl;
 
-import me.elpomoika.enderChest.database.EChestDataI;
+import me.elpomoika.enderChest.EnderChest;
+import me.elpomoika.enderChest.database.Database;
 import me.elpomoika.enderChest.gui.ChestGui;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
 import java.sql.*;
 
-public class SqliteImpl implements EChestDataI {
-    private Connection connection;
+public class SqliteImpl implements Database {
     private final ChestGui chestGui;
+    private String path = EnderChest.getPlugin().getDataFolder().getAbsolutePath() + "/echest.db";
+    private String url = "jdbc:sqlite:" + path;
+    private Connection connection;
+
+    {
+        try {
+            connection = DriverManager.getConnection(url);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public SqliteImpl(ChestGui chestGui) {
         this.chestGui = chestGui;
     }
 
     @Override
-    public void connectDB(String path) throws SQLException {
-        String url = "jdbc:sqlite:" + path;
-        connection = DriverManager.getConnection(url);
+    public void createTable() throws SQLException {
+        System.out.println("" + connection != null);
 
         try (Statement statement = connection.createStatement()) {
             statement.execute("CREATE TABLE IF NOT EXISTS players (" +

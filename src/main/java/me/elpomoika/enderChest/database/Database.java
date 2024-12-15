@@ -5,8 +5,8 @@ import org.bukkit.inventory.Inventory;
 
 import java.sql.SQLException;
 
-public interface EChestDataI {
-    void connectDB(String path) throws SQLException;
+public interface Database {
+    void createTable() throws SQLException;
     void closeConnection();
 
     void addPlayer(Player player, Inventory inventory);
