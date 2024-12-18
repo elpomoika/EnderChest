@@ -1,7 +1,7 @@
 package me.elpomoika.enderChest;
 
-import me.elpomoika.enderChest.database.Database;
-import me.elpomoika.enderChest.database.DatabaseFactory;
+import me.elpomoika.enderChest.database.DatabaseConnection;
+import me.elpomoika.enderChest.database.factories.DatabaseFactory;
 import me.elpomoika.enderChest.listeners.OpenEChestListener;
 import me.elpomoika.enderChest.listeners.onCloseEChest;
 import org.bukkit.Bukkit;
@@ -11,24 +11,23 @@ import java.io.File;
 import java.sql.SQLException;
 
 public final class EnderChest extends JavaPlugin {
-    private Database data;
-    private static EnderChest plugin;
+    private DatabaseConnection data;
 
     @Override
     public void onEnable() {
-        plugin = this;
         createConfigFile();
 
+        DatabaseFactory databaseFactory = new DatabaseFactory(this);
         try {
-            data = DatabaseFactory.getDatabase(this.getConfig().getString("database"));
+            data = databaseFactory.getDatabaseConnection(getConfig().getString("database"));
+            data.getConnection();
             data.createTable();
         } catch (SQLException e) {
-            Bukkit.getPluginManager().disablePlugin(this);
-            throw new RuntimeException("Failed to connect to database!!!", e);
+            throw new RuntimeException("Cannot to create table", e);
         }
 
-        Bukkit.getPluginManager().registerEvents(new onCloseEChest(), this);
-        Bukkit.getPluginManager().registerEvents(new OpenEChestListener(), this);
+        Bukkit.getPluginManager().registerEvents(new onCloseEChest(this), this);
+        Bukkit.getPluginManager().registerEvents(new OpenEChestListener(this), this);
     }
 
     @Override
@@ -41,9 +40,5 @@ public final class EnderChest extends JavaPlugin {
         saveDefaultConfig();
         File configFile = new File(getDataFolder(), "config.yml");
         if (!configFile.exists()) saveResource("config.yml", false);
-    }
-
-    public static EnderChest getPlugin() {
-        return plugin;
     }
 }
