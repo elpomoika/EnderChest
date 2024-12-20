@@ -1,8 +1,10 @@
 package me.elpomoika.enderChest.listeners;
 
 import me.elpomoika.enderChest.EnderChest;
+import me.elpomoika.enderChest.config.BukkitConfigProvider;
 import me.elpomoika.enderChest.database.Repository;
 import me.elpomoika.enderChest.database.factories.RepositoriesFactory;
+import me.elpomoika.enderChest.gui.ChestGui;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -19,11 +21,11 @@ public class onCloseEChest implements Listener {
 
     @EventHandler
     public void onClose(InventoryCloseEvent event) {
-        repositoriesFactory = new RepositoriesFactory(plugin);
+        repositoriesFactory = new RepositoriesFactory(plugin, new BukkitConfigProvider(plugin));
         data = repositoriesFactory.getRepository(plugin.getConfig().getString("database"));
 
         Player player = (Player) event.getPlayer();
-        if (event.getView().getTitle().equalsIgnoreCase("EChest")) {
+        if (event.getInventory().getHolder() instanceof ChestGui) {
             if (!data.playerExists(player)) {
                 System.out.println(data.playerExists(player));
                 data.addPlayer(player, event.getInventory());

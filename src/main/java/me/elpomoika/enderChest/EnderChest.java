@@ -1,7 +1,10 @@
 package me.elpomoika.enderChest;
 
+import me.elpomoika.enderChest.config.BukkitConfigProvider;
 import me.elpomoika.enderChest.database.DatabaseConnection;
 import me.elpomoika.enderChest.database.factories.DatabaseFactory;
+import me.elpomoika.enderChest.gui.ChestGui;
+import me.elpomoika.enderChest.gui.GuiUtils;
 import me.elpomoika.enderChest.listeners.OpenEChestListener;
 import me.elpomoika.enderChest.listeners.onCloseEChest;
 import org.bukkit.Bukkit;
@@ -17,7 +20,7 @@ public final class EnderChest extends JavaPlugin {
     public void onEnable() {
         createConfigFile();
 
-        DatabaseFactory databaseFactory = new DatabaseFactory(this);
+        DatabaseFactory databaseFactory = new DatabaseFactory(this, new BukkitConfigProvider(this));
         try {
             data = databaseFactory.getDatabaseConnection(getConfig().getString("database"));
             data.getConnection();
@@ -27,7 +30,7 @@ public final class EnderChest extends JavaPlugin {
         }
 
         Bukkit.getPluginManager().registerEvents(new onCloseEChest(this), this);
-        Bukkit.getPluginManager().registerEvents(new OpenEChestListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new OpenEChestListener(new GuiUtils(new ChestGui()), this), this);
     }
 
     @Override

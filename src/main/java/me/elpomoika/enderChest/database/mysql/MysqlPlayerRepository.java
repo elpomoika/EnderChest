@@ -2,6 +2,7 @@ package me.elpomoika.enderChest.database.mysql;
 
 import me.elpomoika.enderChest.database.Repository;
 import me.elpomoika.enderChest.gui.ChestGui;
+import me.elpomoika.enderChest.gui.GuiUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
@@ -10,11 +11,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class MysqlPlayerRepository implements Repository {
-    private final ChestGui chestGui;
+    private final GuiUtils guiUtils;
     private final MysqlDatabaseConnectionService connection;
 
-    public MysqlPlayerRepository(ChestGui chestGui, MysqlDatabaseConnectionService connection) {
-        this.chestGui = chestGui;
+    public MysqlPlayerRepository(GuiUtils guiUtils, MysqlDatabaseConnectionService connection) {
+        this.guiUtils = guiUtils;
         this.connection = connection;
     }
 
@@ -22,7 +23,7 @@ public class MysqlPlayerRepository implements Repository {
     public void addPlayer(Player player, Inventory inventory) {
         try (PreparedStatement preparedStatement = connection.getConnection().prepareStatement("INSERT INTO players (username, inventory) VALUES (?, ?)")){
             preparedStatement.setString(1, player.getDisplayName());
-            preparedStatement.setString(2, chestGui.serializeInventory(inventory));
+            preparedStatement.setString(2, guiUtils.serializeInventory(inventory));
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -44,7 +45,7 @@ public class MysqlPlayerRepository implements Repository {
     @Override
     public void updatePlayer(Player player, Inventory inventory) {
         try (PreparedStatement preparedStatement = connection.getConnection().prepareStatement("UPDATE players SET inventory = ? WHERE username = ?")){
-            preparedStatement.setString(1, chestGui.serializeInventory(inventory));
+            preparedStatement.setString(1, guiUtils.serializeInventory(inventory));
             preparedStatement.setString(2, player.getDisplayName());
             preparedStatement.executeUpdate();
         } catch (SQLException e) {

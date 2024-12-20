@@ -1,6 +1,5 @@
 package me.elpomoika.enderChest.database.sqlite;
 
-import lombok.Getter;
 import me.elpomoika.enderChest.EnderChest;
 import me.elpomoika.enderChest.database.DatabaseConnection;
 
@@ -34,8 +33,6 @@ public class SqliteDatabaseConnectionService implements DatabaseConnection {
 
     @Override
     public void createTable() throws SQLException {
-        System.out.println(connection != null);
-
         try (Statement statement = connection.createStatement()) {
             statement.execute("CREATE TABLE IF NOT EXISTS players (" +
                     "username TEXT NOT NULL, " +

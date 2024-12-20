@@ -1,46 +1,19 @@
 package me.elpomoika.enderChest.gui;
 
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.InventoryHolder;
+import org.jetbrains.annotations.NotNull;
 
-public class ChestGui {
-    public Inventory openGui(Player player) {
-        Inventory gui = Bukkit.createInventory(player, 27, "EChest");
-        return gui;
+public class ChestGui implements InventoryHolder {
+    private Inventory inventory;
+
+    public ChestGui() {
+        this.inventory = Bukkit.createInventory(this, 27, "EChest");
     }
 
-    public String serializeInventory(Inventory inventory) {
-        YamlConfiguration config = new YamlConfiguration();
-        for (int i = 0; i < inventory.getSize(); i++) {
-            ItemStack item = inventory.getItem(i);
-            if (item != null) {
-                config.set("slot." + i, item);
-            }
-        }
-        return config.saveToString();
-    }
-
-    public Inventory deserializeInventory(String data, Player player) {
-        YamlConfiguration config = new YamlConfiguration();
-        try {
-            config.loadFromString(data);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        Inventory inventory = openGui(player);
-        if (config.contains("slot")) {
-            for (String key : config.getConfigurationSection("slot").getKeys(false)) {
-                int slot = Integer.parseInt(key);
-                ItemStack item = config.getItemStack("slot." + key);
-                inventory.setItem(slot, item);
-            }
-        }
+    @Override
+    public @NotNull Inventory getInventory() {
         return inventory;
     }
-
-
 }
