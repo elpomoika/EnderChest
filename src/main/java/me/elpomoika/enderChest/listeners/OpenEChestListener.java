@@ -1,6 +1,8 @@
 package me.elpomoika.enderChest.listeners;
 
-import me.elpomoika.enderChest.database.EChestData;
+import me.elpomoika.enderChest.EnderChest;
+import me.elpomoika.enderChest.database.Repository;
+import me.elpomoika.enderChest.database.factories.RepositoriesFactory;
 import me.elpomoika.enderChest.gui.ChestGui;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -11,25 +13,29 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 public class OpenEChestListener implements Listener {
     private ChestGui chestGui = new ChestGui();
-    private final EChestData data;
+    private Repository data;
+    private final EnderChest plugin;
+    private RepositoriesFactory repositoriesFactory;
 
-    public OpenEChestListener(EChestData data) {
-        this.data = data;
+    public OpenEChestListener(EnderChest plugin) {
+        this.plugin = plugin;
     }
 
     @EventHandler
     public void onClick(PlayerInteractEvent event) {
+        repositoriesFactory = new RepositoriesFactory(plugin);
+        data = repositoriesFactory.getRepository(plugin.getConfig().getString("database"));
+
         Player p = event.getPlayer();
 
-        if (!event.getAction().equals(Action.RIGHT_CLICK_BLOCK))
-            return;
-        if (!event.getClickedBlock().getType().equals(Material.ENDER_CHEST))
-            return;
+        if (!event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) return;
+        if (!event.getClickedBlock().getType().equals(Material.ENDER_CHEST)) return;
+
         event.setCancelled(true);
         if (!data.playerExists(p)) {
-            System.out.println(data.playerExists(p));
             p.openInventory(chestGui.openGui(p));
         }
+
         p.openInventory(chestGui.deserializeInventory(data.getSerializedInventory(p), p));
     }
 }

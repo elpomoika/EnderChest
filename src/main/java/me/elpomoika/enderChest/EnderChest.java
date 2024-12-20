@@ -1,39 +1,44 @@
 package me.elpomoika.enderChest;
 
-import me.elpomoika.enderChest.database.EChestData;
-import me.elpomoika.enderChest.gui.ChestGui;
+import me.elpomoika.enderChest.database.DatabaseConnection;
+import me.elpomoika.enderChest.database.factories.DatabaseFactory;
 import me.elpomoika.enderChest.listeners.OpenEChestListener;
 import me.elpomoika.enderChest.listeners.onCloseEChest;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
 import java.sql.SQLException;
 
 public final class EnderChest extends JavaPlugin {
-    private EChestData data;
-    private String path = getDataFolder().getAbsolutePath() + "/echest.db";
+    private DatabaseConnection data;
 
     @Override
     public void onEnable() {
-        // Plugin startup logic
+        createConfigFile();
+
+        DatabaseFactory databaseFactory = new DatabaseFactory(this);
         try {
-            if (!getDataFolder().exists()) {
-                getDataFolder().mkdir();
-            }
-            data = new EChestData(path, new ChestGui());
-            Bukkit.getPluginManager().registerEvents(new onCloseEChest(new EChestData(path, new ChestGui())), this);
-            Bukkit.getPluginManager().registerEvents(new OpenEChestListener(new EChestData(path, new ChestGui())), this);
+            data = databaseFactory.getDatabaseConnection(getConfig().getString("database"));
+            data.getConnection();
+            data.createTable();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Cannot to create table", e);
         }
+
+        Bukkit.getPluginManager().registerEvents(new onCloseEChest(this), this);
+        Bukkit.getPluginManager().registerEvents(new OpenEChestListener(this), this);
     }
 
     @Override
     public void onDisable() {
-        try {
-            data.closeConnection();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        data.closeConnection();
+    }
+
+    public void createConfigFile() {
+        if (!getDataFolder().exists()) getDataFolder().mkdir();
+        saveDefaultConfig();
+        File configFile = new File(getDataFolder(), "config.yml");
+        if (!configFile.exists()) saveResource("config.yml", false);
     }
 }
